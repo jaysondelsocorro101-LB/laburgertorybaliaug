@@ -5,6 +5,14 @@ const FileStore = require('session-file-store')(session);
 const path = require('path');
 const db = require('./db');
 
+// Auto-seed on first run (no owner = fresh database)
+const ownerExists = db.prepare("SELECT id FROM users WHERE role='owner' LIMIT 1").get();
+if (!ownerExists) {
+  console.log('🌱 Fresh database detected — running seed...');
+  require('./seed');
+  console.log('✅ Seed complete');
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
