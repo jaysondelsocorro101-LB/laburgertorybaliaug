@@ -1,7 +1,6 @@
 try { require('dotenv').config(); } catch {}
 const express = require('express');
 const session = require('express-session');
-const FileStore = require('session-file-store')(session);
 const path = require('path');
 const db = require('./db');
 
@@ -20,8 +19,32 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
+// SQLite-backed session store (no extra package needed)
+db.exec(`CREATE TABLE IF NOT EXISTS sessions (
+  sid TEXT PRIMARY KEY,
+  data TEXT NOT NULL,
+  expires INTEGER NOT NULL
+)`);
+
+const Store = session.Store;
+class SqliteStore extends Store {
+  get(sid, cb) {
+    const row = db.prepare('SELECT data, expires FROM sessions WHERE sid = ?').get(sid);
+    if (!row) return cb(null, null);
+    if (Date.now() > row.expires) { this.destroy(sid, () => {}); return cb(null, null); }
+    try { cb(null, JSON.parse(row.data)); } catch { cb(null, null); }
+  }
+  set(sid, sess, cb) {
+    const expires = sess.cookie?.expires ? new Date(sess.cookie.expires).getTime() : Date.now() + 7 * 24 * 3600 * 1000;
+    db.prepare('INSERT OR REPLACE INTO sessions (sid, data, expires) VALUES (?, ?, ?)').run(sid, JSON.stringify(sess), expires);
+    cb(null);
+  }
+  destroy(sid, cb) { db.prepare('DELETE FROM sessions WHERE sid = ?').run(sid); cb(null); }
+  touch(sid, sess, cb) { this.set(sid, sess, cb); }
+}
+
 app.use(session({
-  store: new FileStore({ path: path.join(__dirname, '..', 'sessions'), ttl: 7 * 24 * 3600, reapInterval: 3600 }),
+  store: new SqliteStore(),
   secret: process.env.SESSION_SECRET || 'laburgertory-secret-dev',
   resave: false,
   saveUninitialized: false,
