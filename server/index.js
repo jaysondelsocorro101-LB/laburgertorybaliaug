@@ -19,6 +19,11 @@ app.set('trust proxy', 1);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '..', 'public')));
+// Serve uploads from volume when on Railway
+const fs = require('fs');
+if (fs.existsSync('/app/data/uploads')) {
+  app.use('/uploads', require('express').static('/app/data/uploads'));
+}
 
 // SQLite-backed session store (no extra package needed)
 db.exec(`CREATE TABLE IF NOT EXISTS sessions (
