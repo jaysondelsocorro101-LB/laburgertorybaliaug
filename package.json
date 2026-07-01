@@ -1,0 +1,23 @@
+{
+  "name": "laburgertory",
+  "version": "1.0.0",
+  "description": "LaBurgertory — Costing, Inventory & Online Ordering App",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node --experimental-sqlite server/index.js",
+    "dev": "nodemon --exec \"node --experimental-sqlite\" server/index.js",
+    "seed": "node --experimental-sqlite server/seed.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-sqlite3": "^0.9.14",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "multer": "^1.4.5-lts.1",
+    "session-file-store": "^1.5.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

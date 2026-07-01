@@ -1,0 +1,17 @@
+{
+  "name": "LaBurgertory",
+  "short_name": "LaBurgertory",
+  "description": "Order from LaBurgertory — Smash. Stack. Devour.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#e8541a",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

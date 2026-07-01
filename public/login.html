@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff Login — LaBurgertory</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+<div id="offline-banner"></div>
+
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <h1>La<span>Burgertory</span></h1>
+      <p>Staff & Owner Portal</p>
+    </div>
+
+    <form id="login-form" onsubmit="doLogin(event)" style="display:flex;flex-direction:column;gap:16px;">
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" class="form-input" id="username" autocomplete="username" placeholder="owner" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="password" autocomplete="current-password" placeholder="••••••••" required />
+      </div>
+      <div id="login-error" style="display:none;color:var(--danger);font-size:0.85rem;text-align:center;"></div>
+      <button type="submit" class="btn btn-primary btn-lg w-full" id="login-btn">Sign In</button>
+    </form>
+
+    <div style="margin-top:24px;text-align:center;">
+      <a href="/" style="font-size:0.8rem;color:var(--text3);">← Back to menu</a>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="/js/utils.js"></script>
+<script>
+  // Redirect if already logged in
+  api('GET', '/api/auth/me').then(data => {
+    if (data.user) redirectAfterLogin(data.user.role);
+  }).catch(() => {});
+
+  async function doLogin(e) {
+    e.preventDefault();
+    const btn = document.getElementById('login-btn');
+    const errEl = document.getElementById('login-error');
+    btn.disabled = true;
+    btn.textContent = 'Signing in...';
+    errEl.style.display = 'none';
+
+    try {
+      const data = await api('POST', '/api/auth/login', {
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value,
+      });
+      redirectAfterLogin(data.user.role);
+    } catch (err) {
+      errEl.textContent = err.message || 'Invalid credentials';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    }
+  }
+
+  function redirectAfterLogin(role) {
+    const dest = new URLSearchParams(location.search).get('next') || '/kitchen.html';
+    window.location.href = dest;
+  }
+</script>
+</body>
+</html>

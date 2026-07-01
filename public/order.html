@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Status — LaBurgertory</title>
+  <meta name="description" content="Track your LaBurgertory order in real time." />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#e8541a" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <style>
+    .order-page { max-width: 540px; margin: 0 auto; padding: 32px 20px 80px; }
+    .order-brand { text-align: center; margin-bottom: 28px; }
+    .order-brand a { font-size: 1.3rem; font-weight: 900; color: var(--text); }
+    .order-brand a span { color: var(--accent); }
+    .order-num-hero {
+      text-align: center;
+      background: var(--accent-light);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      margin-bottom: 24px;
+    }
+    .order-num-hero .label { font-size: 0.72rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .order-num-hero .num { font-size: 1.5rem; font-weight: 900; color: var(--text); }
+    .refresh-hint { font-size: 0.75rem; color: var(--text3); text-align: center; margin-top: 16px; }
+    .refresh-hint span { color: var(--accent); font-weight: 600; }
+    .share-row { display: flex; gap: 8px; margin-top: 20px; }
+    .detail-block { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-top: 16px; }
+    .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 0.875rem; }
+    .detail-row:not(:last-child) { border-bottom: 1px solid var(--border); }
+    .detail-label { color: var(--text2); }
+    .detail-val { font-weight: 600; }
+    .gcash-alert {
+      background: var(--warning-light);
+      border: 1px solid var(--warning);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-top: 16px;
+      font-size: 0.875rem;
+    }
+    .cancelled-banner {
+      background: var(--danger-light);
+      border: 1px solid var(--danger);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .not-found { text-align: center; padding: 80px 20px; }
+  </style>
+</head>
+<body>
+<div id="offline-banner"></div>
+
+<div class="order-page">
+  <div class="order-brand">
+    <a href="/">La<span>Burgertory</span></a>
+  </div>
+
+  <div id="order-body"><div class="spinner"></div></div>
+</div>
+
+<div id="toast-container"></div>
+<script src="/js/utils.js"></script>
+<script src="/js/order.js"></script>
+</body>
+</html>

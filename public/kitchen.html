@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kitchen Board — LaBurgertory</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <style>
+    .kitchen-header {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .kitchen-filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .filter-chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1px solid var(--border2);
+      background: var(--bg3);
+      color: var(--text2);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .filter-chip:hover { background: var(--bg4); color: var(--text); }
+    .filter-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .filter-chip.all { }
+    .filter-chip.received { border-color: var(--info); }
+    .filter-chip.received.active { background: var(--info); border-color: var(--info); }
+    .filter-chip.preparing { border-color: var(--warning); }
+    .filter-chip.preparing.active { background: var(--warning); border-color: var(--warning); color: #000; }
+    .filter-chip.ready { border-color: var(--success); }
+    .filter-chip.ready.active { background: var(--success); border-color: var(--success); }
+    .kitchen-body { padding: 20px; max-width: 1400px; margin: 0 auto; }
+    .refresh-indicator {
+      font-size: 0.72rem;
+      color: var(--text3);
+      font-family: var(--font-mono);
+    }
+    .order-num-display {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text3);
+      letter-spacing: 0.5px;
+    }
+    .proof-thumb {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .search-wrap { display: flex; gap: 8px; align-items: center; }
+    @media (max-width: 600px) {
+      .kitchen-header { flex-direction: column; gap: 10px; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<div id="offline-banner"></div>
+
+<!-- Top bar -->
+<div class="kitchen-header">
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+    <div class="topnav-logo">La<span style="color:var(--text)">Burgertory</span> <span style="font-size:0.8rem;color:var(--text3);font-weight:400;">Kitchen</span></div>
+    <div class="kitchen-filters" id="filter-chips">
+      <button class="filter-chip all active" onclick="setFilter('all',this)">All Active</button>
+      <button class="filter-chip received" onclick="setFilter('received',this)">📬 Received</button>
+      <button class="filter-chip preparing" onclick="setFilter('preparing',this)">🍳 Preparing</button>
+      <button class="filter-chip ready" onclick="setFilter('ready',this)">✅ Ready</button>
+      <button class="filter-chip" onclick="setFilter('completed',this)">Completed</button>
+      <button class="filter-chip" onclick="setFilter('cancelled',this)">Cancelled</button>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div class="search-wrap">
+      <input type="text" class="form-input" id="search-input" placeholder="Search name/order…" style="width:180px;padding:7px 12px;"
+        oninput="loadOrders()" />
+    </div>
+    <span class="refresh-indicator" id="refresh-label">Auto-refresh: on</span>
+    <div class="user-chip">
+      <span id="user-chip">Loading…</span>
+      &nbsp;·&nbsp;<a href="#" onclick="logout();return false;" style="color:var(--text3);font-size:0.75rem;">Sign out</a>
+    </div>
+    <a href="/inventory.html" class="btn btn-ghost btn-sm">Inventory</a>
+  </div>
+</div>
+
+<!-- Orders grid -->
+<div class="kitchen-body">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div id="order-count" style="font-size:0.85rem;color:var(--text2);"></div>
+    <input type="date" class="form-input" id="date-filter" style="width:160px;padding:7px 12px;" onchange="loadOrders()" />
+  </div>
+  <div class="kitchen-grid" id="orders-grid">
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<!-- Payment proof modal -->
+<div class="modal-overlay" id="proof-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <h3>GCash Payment Proof</h3>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal('proof-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="proof-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('proof-modal')">Close</button>
+      <button class="btn btn-success" id="proof-verify-btn" onclick="verifyFromModal()">✓ Verify Payment</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="/js/utils.js"></script>
+<script src="/js/idb-queue.js"></script>
+<script src="/js/kitchen.js"></script>
+</body>
+</html>

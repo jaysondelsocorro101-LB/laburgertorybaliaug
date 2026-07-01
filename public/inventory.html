@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory & Costing — LaBurgertory</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+<div id="offline-banner"></div>
+
+<!-- Topnav -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="topnav-logo">La<span>Burgertory</span></div>
+    <div class="topnav-links">
+      <a href="/kitchen.html">Kitchen</a>
+      <a href="/inventory.html" class="active">Inventory</a>
+      <a href="/users.html" id="users-nav-link" style="display:none">Users</a>
+    </div>
+    <div class="topnav-right">
+      <div class="user-chip" id="user-chip">Loading…</div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Layout -->
+<div class="inv-layout">
+  <!-- Sidebar -->
+  <aside class="inv-sidebar">
+    <div style="padding:0 4px 16px;font-size:0.72rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;">Inventory</div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link" onclick="showSection('dashboard')" id="nav-dashboard">
+        <span class="sidebar-icon">📊</span> Dashboard
+      </button>
+      <button class="sidebar-link active" onclick="showSection('products')" id="nav-products">
+        <span class="sidebar-icon">🍔</span> Products
+      </button>
+      <button class="sidebar-link" onclick="showSection('ingredients')" id="nav-ingredients">
+        <span class="sidebar-icon">🧂</span> Ingredients
+      </button>
+      <button class="sidebar-link" onclick="showSection('stock-log')" id="nav-stock-log">
+        <span class="sidebar-icon">📋</span> Stock Log
+      </button>
+      <button class="sidebar-link" onclick="showSection('low-stock')" id="nav-low-stock">
+        <span class="sidebar-icon">⚠️</span> Low Stock
+      </button>
+      <button class="sidebar-link" onclick="showSection('settings')" id="nav-settings" style="display:none">
+        <span class="sidebar-icon">⚙️</span> Settings
+      </button>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <main class="inv-main">
+
+    <!-- Dashboard -->
+    <div id="section-dashboard" style="display:none">
+      <div class="section-header">
+        <div class="section-title">Dashboard</div>
+        <button class="btn btn-ghost btn-sm" onclick="loadDashboard()">↻ Refresh</button>
+      </div>
+      <div id="dashboard-body"><div class="spinner"></div></div>
+    </div>
+
+    <!-- Products -->
+    <div id="section-products">
+      <div class="section-header">
+        <div class="section-title">Products</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input type="text" class="form-input" id="product-search" placeholder="Search products…" style="width:200px;" oninput="filterProducts()" />
+          <button class="btn btn-primary btn-sm" id="add-product-btn" onclick="openProductModal()" style="display:none">+ Add Product</button>
+        </div>
+      </div>
+      <div id="products-list"><div class="spinner"></div></div>
+    </div>
+
+    <!-- Ingredients -->
+    <div id="section-ingredients" style="display:none">
+      <div class="section-header">
+        <div class="section-title">Ingredients</div>
+        <button class="btn btn-primary btn-sm" id="add-ingredient-btn" onclick="openIngredientModal()" style="display:none">+ Add Ingredient</button>
+      </div>
+      <div id="ingredients-list"><div class="spinner"></div></div>
+    </div>
+
+    <!-- Stock Log -->
+    <div id="section-stock-log" style="display:none">
+      <div class="section-header">
+        <div class="section-title">Stock Log</div>
+        <button class="btn btn-primary btn-sm" onclick="openStockLogModal()">+ Log Movement</button>
+      </div>
+      <div id="stock-log-list"><div class="spinner"></div></div>
+    </div>
+
+    <!-- Low Stock -->
+    <div id="section-low-stock" style="display:none">
+      <div class="section-header">
+        <div class="section-title">Low Stock Alerts</div>
+        <button class="btn btn-ghost btn-sm" onclick="loadLowStock()">Refresh</button>
+      </div>
+      <div id="low-stock-list"><div class="spinner"></div></div>
+    </div>
+
+    <!-- Settings -->
+    <div id="section-settings" style="display:none">
+      <div class="section-title" style="margin-bottom:20px;">Settings</div>
+      <div id="settings-body"><div class="spinner"></div></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Product Modal -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <h3 id="product-modal-title">Add Product</h3>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal('product-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="product-modal-body"></div>
+  </div>
+</div>
+
+<!-- Recipe Modal -->
+<div class="modal-overlay" id="recipe-modal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <h3 id="recipe-modal-title">Recipe & Costing</h3>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal('recipe-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="recipe-modal-body"></div>
+  </div>
+</div>
+
+<!-- Ingredient Modal -->
+<div class="modal-overlay" id="ingredient-modal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <h3 id="ingredient-modal-title">Add Ingredient</h3>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal('ingredient-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="ingredient-modal-body"></div>
+  </div>
+</div>
+
+<!-- Stock Log Modal -->
+<div class="modal-overlay" id="stock-log-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <h3>Log Stock Movement</h3>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal('stock-log-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="stock-log-modal-body"></div>
+  </div>
+</div>
+
+<!-- GCash Settings Modal -->
+<div class="modal-overlay" id="gcash-modal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <h3>GCash Settings</h3>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal('gcash-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="gcash-modal-body"></div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="/js/utils.js?v=4"></script>
+<script src="/js/inventory.js?v=4"></script>
+</body>
+</html>

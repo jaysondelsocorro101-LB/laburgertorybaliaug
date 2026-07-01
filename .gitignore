@@ -1,0 +1,18 @@
+# Never upload these
+.env
+.env.*
+
+# Database (lives on the server, not in git)
+*.db
+*.db-wal
+*.db-shm
+
+# Session files
+sessions/
+
+# Uploaded product/GCash images (managed on server)
+public/uploads/
+
+# Node
+node_modules/
+npm-debug.log*

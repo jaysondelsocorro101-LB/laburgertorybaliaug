@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Management — LaBurgertory</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+<div id="offline-banner"></div>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="topnav-logo">La<span>Burgertory</span></div>
+    <div class="topnav-links">
+      <a href="/kitchen.html">Kitchen</a>
+      <a href="/inventory.html">Inventory</a>
+      <a href="/users.html" class="active">Users</a>
+    </div>
+    <div class="topnav-right">
+      <div class="user-chip" id="user-chip">Loading…</div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<div style="max-width:900px;margin:0 auto;padding:32px 20px;">
+  <div class="section-header">
+    <div class="section-title">User Management</div>
+    <button class="btn btn-primary" onclick="openUserModal()">+ Add Staff</button>
+  </div>
+  <div id="users-list"><div class="spinner"></div></div>
+</div>
+
+<!-- User Modal -->
+<div class="modal-overlay" id="user-modal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <h3 id="user-modal-title">Add Staff Account</h3>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal('user-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="user-modal-body"></div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="/js/utils.js"></script>
+<script src="/js/users.js"></script>
+</body>
+</html>
