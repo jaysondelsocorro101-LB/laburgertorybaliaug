@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const db = require('../db');
-const { requireOwner } = require('../middleware/auth');
+const { requireOwner, requireStaff } = require('../middleware/auth');
 const router = express.Router();
 
 // Owner: list all users
@@ -58,6 +58,24 @@ router.patch('/:id', requireOwner, (req, res) => {
     WHERE id = ?
   `).run(name, role, is_active != null ? parseInt(is_active) : null, req.params.id);
 
+  res.json({ success: true });
+});
+
+// Any logged-in user: change own password
+router.patch('/change-password', requireStaff, (req, res) => {
+  const { current_password, new_password } = req.body;
+  if (!current_password || !new_password) {
+    return res.status(400).json({ error: 'current_password and new_password required' });
+  }
+  if (new_password.length < 8) {
+    return res.status(400).json({ error: 'New password must be at least 8 characters' });
+  }
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.user.id);
+  if (!bcrypt.compareSync(current_password, user.password_hash)) {
+    return res.status(401).json({ error: 'Current password is incorrect' });
+  }
+  db.prepare('UPDATE users SET password_hash = ? WHERE id = ?')
+    .run(bcrypt.hashSync(new_password, 10), user.id);
   res.json({ success: true });
 });
 

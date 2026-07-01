@@ -702,6 +702,25 @@ async function loadSettings() {
             <button class="btn btn-primary" onclick="saveShopSettings()">Save Shop Info</button>
           </div>
         </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:16px;">Change My Password</h3>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div class="form-group">
+              <label class="form-label">Current Password</label>
+              <input type="password" class="form-input" id="s-pw-current" placeholder="••••••••" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input type="password" class="form-input" id="s-pw-new" placeholder="••••••••" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm New Password</label>
+              <input type="password" class="form-input" id="s-pw-confirm" placeholder="••••••••" />
+            </div>
+            <button class="btn btn-primary" onclick="changeMyPassword()">Update Password</button>
+          </div>
+        </div>
       </div>
     `;
   } catch (err) { el.innerHTML = `<p style="color:var(--danger)">${err.message}</p>`; }
@@ -727,6 +746,22 @@ async function saveShopSettings() {
     await api('PATCH', '/api/settings/update', { key: 'shop_tagline', value: document.getElementById('s-tagline').value.trim() });
     Toast.success('Shop info saved');
   } catch { Toast.error('Failed to save'); }
+}
+
+async function changeMyPassword() {
+  const current = document.getElementById('s-pw-current').value;
+  const newPw   = document.getElementById('s-pw-new').value;
+  const confirm = document.getElementById('s-pw-confirm').value;
+  if (!current || !newPw) { Toast.error('All fields required'); return; }
+  if (newPw.length < 8)   { Toast.error('New password must be at least 8 characters'); return; }
+  if (newPw !== confirm)  { Toast.error('Passwords do not match'); return; }
+  try {
+    await api('PATCH', '/api/users/change-password', { current_password: current, new_password: newPw });
+    Toast.success('Password updated — please log in again');
+    document.getElementById('s-pw-current').value = '';
+    document.getElementById('s-pw-new').value = '';
+    document.getElementById('s-pw-confirm').value = '';
+  } catch (err) { Toast.error(err.message || 'Failed to update password'); }
 }
 
 init();

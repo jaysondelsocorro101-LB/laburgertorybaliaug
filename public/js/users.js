@@ -17,6 +17,7 @@ async function init() {
 async function loadUsers() {
   try {
     const users = await api('GET', '/api/users');
+    allUsers = users;
     renderUsers(users);
   } catch (err) {
     document.getElementById('users-list').innerHTML =
@@ -72,28 +73,32 @@ function renderUsers(users) {
   `;
 }
 
+let allUsers = [];
+
 function openUserModal(userId = null) {
   editingUserId = userId;
+  const user = allUsers.find(u => u.id === userId);
   document.getElementById('user-modal-title').textContent = userId ? 'Edit User' : 'Add Staff Account';
   document.getElementById('user-modal-body').innerHTML = `
     <div style="display:flex;flex-direction:column;gap:14px;">
       <div class="form-group">
         <label class="form-label">Full Name *</label>
-        <input type="text" class="form-input" id="um-name" placeholder="Juan Dela Cruz" />
+        <input type="text" class="form-input" id="um-name" placeholder="Juan Dela Cruz" value="${esc(user?.name||'')}" />
       </div>
       <div class="form-group">
         <label class="form-label">Username *</label>
-        <input type="text" class="form-input" id="um-username" placeholder="juan.staff" ${userId ? 'disabled' : ''} />
+        <input type="text" class="form-input" id="um-username" placeholder="juan.staff"
+          value="${esc(user?.email_or_username||'')}" ${userId ? 'disabled' : ''} />
       </div>
       <div class="form-group">
-        <label class="form-label">${userId ? 'New Password (leave blank to keep)' : 'Password *'}</label>
+        <label class="form-label">${userId ? 'New Password <span style="color:var(--text3);font-weight:400;">(leave blank to keep current)</span>' : 'Password *'}</label>
         <input type="password" class="form-input" id="um-password" placeholder="••••••••" />
       </div>
       <div class="form-group">
         <label class="form-label">Role *</label>
         <select class="form-input" id="um-role">
-          <option value="staff">Staff</option>
-          <option value="owner">Owner</option>
+          <option value="staff" ${user?.role==='staff'?'selected':''}>Staff</option>
+          <option value="owner" ${user?.role==='owner'||!user?'selected':''}>Owner</option>
         </select>
       </div>
     </div>
