@@ -124,6 +124,10 @@ small { font-size: 0.8rem; }
 .btn-success:hover { background: #16a34a; }
 .btn-danger { background: var(--danger); color: #fff; }
 .btn-danger:hover { background: #dc2626; }
+.drag-handle { color: var(--text3); cursor: grab; padding: 0 6px; display:flex; align-items:center; flex-shrink:0; }
+.drag-handle:hover { color: var(--accent); }
+tr[draggable="true"] { cursor: default; }
+tr[draggable="true"].drag-over { outline: 2px solid var(--accent); }
 .btn-warning { background: var(--warning); color: #000; }
 .btn-warning:hover { background: #d97706; }
 .btn-ghost {

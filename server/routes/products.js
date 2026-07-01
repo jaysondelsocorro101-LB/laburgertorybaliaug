@@ -46,6 +46,15 @@ router.post('/', requireOwner, upload.single('image'), (req, res) => {
   res.json({ success: true, id: result.lastInsertRowid });
 });
 
+// Owner: reorder products — MUST be before /:id to avoid route conflict
+router.patch('/reorder', requireOwner, (req, res) => {
+  const items = req.body;
+  if (!Array.isArray(items)) return res.status(400).json({ error: 'Expected array' });
+  const update = db.prepare('UPDATE products SET sort_order = ? WHERE id = ?');
+  for (const { id, sort_order } of items) update.run(sort_order, id);
+  res.json({ success: true });
+});
+
 // Owner: update product
 router.patch('/:id', requireOwner, upload.single('image'), (req, res) => {
   const { name, description, price, is_active, category_id } = req.body;
@@ -122,15 +131,6 @@ router.post('/:id/recipe', requireOwner, (req, res) => {
 router.delete('/:id/recipe/:ingredient_id', requireOwner, (req, res) => {
   db.prepare('DELETE FROM recipes WHERE product_id = ? AND ingredient_id = ?')
     .run(req.params.id, req.params.ingredient_id);
-  res.json({ success: true });
-});
-
-// Owner: reorder products (accepts [{id, sort_order},...])
-router.patch('/reorder', requireOwner, (req, res) => {
-  const items = req.body;
-  if (!Array.isArray(items)) return res.status(400).json({ error: 'Expected array' });
-  const update = db.prepare('UPDATE products SET sort_order = ? WHERE id = ?');
-  for (const { id, sort_order } of items) update.run(sort_order, id);
   res.json({ success: true });
 });
 

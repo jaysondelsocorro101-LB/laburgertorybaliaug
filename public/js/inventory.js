@@ -166,7 +166,13 @@ function renderProducts(products) {
                   style="cursor:grab;">
                 <td>
                   <div style="display:flex;align-items:center;gap:10px;">
-                    <span style="color:var(--text3);font-size:1rem;cursor:grab;padding:0 4px;" title="Drag to reorder">⠿</span>
+                    <span class="drag-handle" title="Drag to reorder">
+                      <svg width="12" height="18" viewBox="0 0 12 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="3" cy="3" r="1.5"/><circle cx="9" cy="3" r="1.5"/>
+                        <circle cx="3" cy="9" r="1.5"/><circle cx="9" cy="9" r="1.5"/>
+                        <circle cx="3" cy="15" r="1.5"/><circle cx="9" cy="15" r="1.5"/>
+                      </svg>
+                    </span>
                     ${p.image_url
                       ? `<img src="${esc(p.image_url)}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0;" />`
                       : `<div style="width:44px;height:44px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">🍔</div>`}
@@ -769,7 +775,8 @@ function dragOver(e) {
   e.dataTransfer.dropEffect = 'move';
   const row = e.currentTarget;
   if (row === _dragSrcRow) return;
-  row.style.borderTop = '2px solid var(--accent)';
+  document.querySelectorAll('tr.drag-over').forEach(r => r.classList.remove('drag-over'));
+  row.classList.add('drag-over');
 }
 
 function dragDrop(e) {
@@ -787,7 +794,7 @@ function dragDrop(e) {
 
 function dragEnd(e) {
   if (_dragSrcRow) _dragSrcRow.style.opacity = '';
-  document.querySelectorAll('tr[data-id]').forEach(r => r.style.borderTop = '');
+  document.querySelectorAll('tr.drag-over').forEach(r => r.classList.remove('drag-over'));
   _dragSrcRow = null;
 }
 
