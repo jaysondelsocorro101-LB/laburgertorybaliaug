@@ -22,6 +22,7 @@ router.post('/login', (req, res) => {
     name: user.name,
     role: user.role,
     is_active: user.is_active,
+    username: user.email_or_username,
   };
 
   res.json({ success: true, user: { id: user.id, name: user.name, role: user.role } });
