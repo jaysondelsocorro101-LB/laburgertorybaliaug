@@ -70,9 +70,14 @@ router.patch('/change-password', requireStaff, (req, res) => {
   if (new_password.length < 8) {
     return res.status(400).json({ error: 'New password must be at least 8 characters' });
   }
-  // Look up by username in case session ID differs from DB (e.g. fresh Railway DB)
-  const user = db.prepare('SELECT * FROM users WHERE id = ? OR email_or_username = ?')
-    .get(req.session.user.id, req.session.user.username);
+  // Try id first, then username, then name — handles stale sessions after Railway redeploy
+  let user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.user.id);
+  if (!user && req.session.user.username) {
+    user = db.prepare('SELECT * FROM users WHERE email_or_username = ?').get(req.session.user.username);
+  }
+  if (!user && req.session.user.name) {
+    user = db.prepare('SELECT * FROM users WHERE name = ?').get(req.session.user.name);
+  }
   if (!user) return res.status(404).json({ error: 'User not found' });
   if (!bcrypt.compareSync(current_password, user.password_hash)) {
     return res.status(401).json({ error: 'Current password is incorrect' });
