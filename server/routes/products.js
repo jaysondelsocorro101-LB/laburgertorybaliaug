@@ -29,7 +29,7 @@ router.get('/', requireStaff, (req, res) => {
   const products = db.prepare(`
     SELECT p.*, c.name as category_name FROM products p
     JOIN categories c ON c.id = p.category_id
-    ORDER BY c.sort_order, p.name
+    ORDER BY c.sort_order, p.sort_order, p.name
   `).all();
   res.json(products);
 });
@@ -122,6 +122,15 @@ router.post('/:id/recipe', requireOwner, (req, res) => {
 router.delete('/:id/recipe/:ingredient_id', requireOwner, (req, res) => {
   db.prepare('DELETE FROM recipes WHERE product_id = ? AND ingredient_id = ?')
     .run(req.params.id, req.params.ingredient_id);
+  res.json({ success: true });
+});
+
+// Owner: reorder products (accepts [{id, sort_order},...])
+router.patch('/reorder', requireOwner, (req, res) => {
+  const items = req.body;
+  if (!Array.isArray(items)) return res.status(400).json({ error: 'Expected array' });
+  const update = db.prepare('UPDATE products SET sort_order = ? WHERE id = ?');
+  for (const { id, sort_order } of items) update.run(sort_order, id);
   res.json({ success: true });
 });
 

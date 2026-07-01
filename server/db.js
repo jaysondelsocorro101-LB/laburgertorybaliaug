@@ -116,6 +116,13 @@ if (!orderCols.some(c => c.name === 'order_number')) {
   db.exec('ALTER TABLE orders ADD COLUMN order_number INTEGER');
 }
 
+// Migration: add sort_order to products if missing
+const productCols = db.prepare('PRAGMA table_info(products)').all();
+if (!productCols.some(c => c.name === 'sort_order')) {
+  db.exec('ALTER TABLE products ADD COLUMN sort_order INTEGER DEFAULT 0');
+  db.exec('UPDATE products SET sort_order = id');
+}
+
 // node:sqlite uses a slightly different API than better-sqlite3
 // Wrap it to match the better-sqlite3 interface used in routes
 

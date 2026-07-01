@@ -158,9 +158,15 @@ function renderProducts(products) {
           </tr></thead>
           <tbody>
             ${items.map(p => `
-              <tr>
+              <tr draggable="true" data-id="${p.id}" data-sort="${p.sort_order||0}"
+                  ondragstart="dragStart(event)"
+                  ondragover="dragOver(event)"
+                  ondrop="dragDrop(event)"
+                  ondragend="dragEnd(event)"
+                  style="cursor:grab;">
                 <td>
                   <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="color:var(--text3);font-size:1rem;cursor:grab;padding:0 4px;" title="Drag to reorder">⠿</span>
                     ${p.image_url
                       ? `<img src="${esc(p.image_url)}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0;" />`
                       : `<div style="width:44px;height:44px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">🍔</div>`}
@@ -746,6 +752,52 @@ async function saveShopSettings() {
     await api('PATCH', '/api/settings/update', { key: 'shop_tagline', value: document.getElementById('s-tagline').value.trim() });
     Toast.success('Shop info saved');
   } catch { Toast.error('Failed to save'); }
+}
+
+// ── Drag & Drop product reorder ───────────────────────────────
+let _dragSrcRow = null;
+
+function dragStart(e) {
+  _dragSrcRow = e.currentTarget;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', _dragSrcRow.dataset.id);
+  setTimeout(() => _dragSrcRow.style.opacity = '0.4', 0);
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const row = e.currentTarget;
+  if (row === _dragSrcRow) return;
+  row.style.borderTop = '2px solid var(--accent)';
+}
+
+function dragDrop(e) {
+  e.preventDefault();
+  const target = e.currentTarget;
+  if (!_dragSrcRow || target === _dragSrcRow) return;
+  const tbody = target.parentNode;
+  const rows  = [...tbody.querySelectorAll('tr[data-id]')];
+  const srcIdx = rows.indexOf(_dragSrcRow);
+  const tgtIdx = rows.indexOf(target);
+  if (srcIdx < tgtIdx) tbody.insertBefore(_dragSrcRow, target.nextSibling);
+  else tbody.insertBefore(_dragSrcRow, target);
+  saveProductOrder(tbody);
+}
+
+function dragEnd(e) {
+  if (_dragSrcRow) _dragSrcRow.style.opacity = '';
+  document.querySelectorAll('tr[data-id]').forEach(r => r.style.borderTop = '');
+  _dragSrcRow = null;
+}
+
+async function saveProductOrder(tbody) {
+  const rows = [...tbody.querySelectorAll('tr[data-id]')];
+  const payload = rows.map((r, i) => ({ id: parseInt(r.dataset.id), sort_order: i }));
+  try {
+    await api('PATCH', '/api/products/reorder', payload);
+    Toast.success('Order saved');
+  } catch { Toast.error('Failed to save order'); }
 }
 
 async function changeMyPassword() {
